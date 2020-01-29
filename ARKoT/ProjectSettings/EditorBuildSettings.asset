@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Main.unity
+    guid: cdfa6e53e98ca8b4ba4409462adb78ac
+  - enabled: 0
+    path: Assets/GoogleARCore/Examples/AugmentedImage/Scenes/AugmentedImage.unity
+    guid: be567d47d3ab94b3badc5b211f535a24
+  - enabled: 0
+    path: Assets/Scenes/AugmentedImageSample.unity
+    guid: 0955eaa5baff4ac47bddf9eaed53da25
+  m_configObjects:
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 7bb7ec335ff78b24ba1ca7f7d8fdd902,
+      type: 2}
