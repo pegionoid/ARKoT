@@ -17,8 +17,7 @@
         /// </summary>
         private GameObject Model;
         private float halfHeight;
-
-        private Collider Collider;
+        
 
         public bool IsTokyo
         {
@@ -27,6 +26,7 @@
         }
 
         private GameObject MonstorModel;
+        private Animator MonstorAnimation;
 
         /// <summary>
         /// The AugmentedImage to visualize.
@@ -71,7 +71,8 @@
                     back.GetComponent<Renderer>().material = material;
                     back.GetComponent<Renderer>().material.mainTextureScale = new Vector2(1, -1);
 
-                    MonstorModel = (GameObject)Instantiate(Resources.Load($"Prefabs/giant"), this.transform.position, this.transform.rotation);
+                    MonstorModel = (GameObject)Instantiate(Resources.Load($"Prefabs/{monstorName[0]}"), this.transform.position, this.transform.rotation);
+                    MonstorAnimation = MonstorModel.GetComponent<Animator>();
                 }
             }
         }
@@ -138,6 +139,25 @@
             Debug.Log($"[Debug@Monstor]MonstoeModel.Position:{MonstorModel.transform.position}");
             Debug.Log($"[Debug@Monstor]MonstoeModel.Rotation:{MonstorModel.transform.rotation}");
 
+            //switch((int)(Random.value/0.2))
+            //{
+            //    case 1:
+            //        Attack();
+            //        break;
+            //    case 2:
+            //        Heal();
+            //        break;
+            //    case 3:
+            //        Charge();
+            //        break;
+            //    case 4:
+            //        Damage();
+            //        break;
+            //    case 5:
+            //        Destruct();
+            //        break;
+            //}
+
             return;
         }
 
@@ -179,22 +199,34 @@
 
         public void Attack()
         {
-
+            if (IsTokyo)
+            {
+                MonstorAnimation.SetTrigger("AttackAll");
+            }
+            else
+            {
+                MonstorAnimation.SetTrigger("Attack");
+            }
         }
 
-        public void Healing()
+        public void Heal()
         {
-
+            MonstorAnimation.SetTrigger("Heal");
         }
 
         public void Charge()
         {
-
+            MonstorAnimation.SetTrigger("Charge");
         }
 
         public void Damage()
         {
+            MonstorAnimation.SetTrigger("Damage");
+        }
 
+        public void Destruct()
+        {
+            MonstorAnimation.SetTrigger("Destruct");
         }
 
         private AugmentedImage getFullTrackingImage()
