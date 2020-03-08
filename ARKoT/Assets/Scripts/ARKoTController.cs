@@ -5,6 +5,7 @@
     using GoogleARCore;
     using UnityEngine;
     using UnityEngine.UI;
+    using System.Linq;
 
     public class ARKoTController : MonoBehaviour
     {
@@ -22,30 +23,98 @@
         private List<AugmentedImage> m_TempAugmentedImages = new List<AugmentedImage>();
 
         private MonstorVisualizer turnMonstor = null;
+        private GameObject cursorTurnMonstor = null;
 
         public Transform TokyoTransform
         {
-            get { return m_tokyoVisualizer.transform; }
+            get { return m_tokyoVisualizer == null ? null : m_tokyoVisualizer.transform; }
         }
 
-        //public bool isTokyo(MonstorVisualizer monstor)
-        //{
-        //    bool res = false;
+        public bool SwitchTurnMonstor(eMonstors monstor)
+        {
+            MonstorVisualizer visualizer = null;
+            m_monstorVisualizers.TryGetValue(monstor.ToString(), out visualizer);
+            if (visualizer == null) return false;
 
-        //    if (monstor == null) return res;
-        //    if (m_tokyoVisualizer == null) return res;
+            this.turnMonstor = visualizer;
+            if (cursorTurnMonstor == null)
+            {
+                cursorTurnMonstor = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cursorTurnMonstor.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+            }
 
-        //    float halfHeight = monstor.Image.ExtentZ / 2;
-        //    Vector3 monstorPosition = monstor.Image.CenterPose.position + (halfHeight * Vector3.back) ;
+            cursorTurnMonstor.transform.parent = visualizer.transform;
+            cursorTurnMonstor.transform.localPosition = (visualizer.Height/2 + 0.02f) * Vector3.forward;
 
+            return true;            
+        }
 
+        public void DiceResolution(eMonstors monstor, List<eDiceEye> diceEyes)
+        {
+            MonstorVisualizer visualizer = null;
+            m_monstorVisualizers.TryGetValue(monstor.ToString(), out visualizer);
+            if (visualizer == null) return;
             
+            while (diceEyes.Count > 0)
+            {
+                int count = 0;
+                switch (diceEyes[0])
+                {
+                    case eDiceEye.Attack:
+                        count = diceEyes.FindAll(d => d == eDiceEye.Attack).Count;
+                        visualizer.Attack(count);
+                        if(visualizer.IsTokyo)
+                        {
+                            foreach (MonstorVisualizer mv in m_monstorVisualizers.Values.Where(m => !m.Equals(visualizer)))
+                            {
+                                mv.Damage(count);
+                            }
+                        }
+                        else
+                        {
+                            foreach(MonstorVisualizer mv in m_monstorVisualizers.Values.Where(m => m.IsTokyo))
+                            {
+                                mv.Damage(count);
+                            }
+                        }
+                        diceEyes.RemoveAll(d => d == eDiceEye.Attack);
 
+                        break;
 
+                    case eDiceEye.Energy:
+                        count = diceEyes.FindAll(d => d == eDiceEye.Energy).Count;
+                        visualizer.Charge(count);
+                        diceEyes.RemoveAll(d => d == eDiceEye.Energy);
+                        break;
 
+                    case eDiceEye.Heal:
+                        count = diceEyes.FindAll(d => d == eDiceEye.Heal).Count;
+                        if(!visualizer.IsTokyo) visualizer.Heal(count);
+                        diceEyes.RemoveAll(d => d == eDiceEye.Heal);
+                        break;
 
-        //}
+                    case eDiceEye.OnePoint:
+                    case eDiceEye.TwoPoint:
+                    case eDiceEye.ThreePoint:
+                        int point = 0;
+                        count = diceEyes.FindAll(d => d == eDiceEye.OnePoint).Count - 3;
+                        point += (count >= 0 ? 1 + count : 0);
 
+                        count = diceEyes.FindAll(d => d == eDiceEye.TwoPoint).Count - 3;
+                        point += (count >= 0 ? 2 + count : 0);
+
+                        count = diceEyes.FindAll(d => d == eDiceEye.ThreePoint).Count - 3;
+                        point += (count >= 0 ? 3 + count : 0);
+
+                        if (point > 0) visualizer.Destruct(point);
+                        diceEyes.RemoveAll(d => d == eDiceEye.OnePoint);
+                        diceEyes.RemoveAll(d => d == eDiceEye.TwoPoint);
+                        diceEyes.RemoveAll(d => d == eDiceEye.ThreePoint);
+                        break;
+                }
+            }
+        }
+        
         /// <summary>
         /// The Unity Awake() method.
         /// </summary>
