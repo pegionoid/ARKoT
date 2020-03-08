@@ -25,6 +25,18 @@
             private set;
         }
 
+        public float Height
+        {
+            get;
+            private set;
+        }
+
+        public float Width
+        {
+            get;
+            private set;
+        }
+
         private GameObject MonstorModel;
         private Animator MonstorAnimation;
 
@@ -36,12 +48,14 @@
             set
             {
                 _Images.Add(value);
-                Debug.Log($"[Debug@Monstor]ImageName:{value.Name}; ExtentSize({value.ExtentX},{value.ExtentZ})");
+                //Debug.Log($"[Debug@Monstor]ImageName:{value.Name}; ExtentSize({value.ExtentX},{value.ExtentZ})");
 
-                if(_Images.Count == 1)
+                if (_Images.Count == 1)
                 {
                     AugmentedImage image = _Images[0];
-                    halfHeight = image.ExtentZ / 2;
+                    this.Height = image.ExtentZ;
+                    this.Width = image.ExtentX;
+                    halfHeight = Height / 2;
                     string[] monstorName = image.Name.Split('_');
 
                     GameObject front = transform.Find("Front").gameObject;
@@ -51,7 +65,7 @@
                     back.transform.localScale = new Vector3(image.ExtentX * 0.1f, 0, image.ExtentZ * 0.1f);
 
                     Material material;
-                    Texture2D covertex = (Texture2D)Resources.Load($"Images/Cover_{monstorName[0]}");
+                    Texture2D covertex = (Texture2D)Resources.Load($"Images/{monstorName[0]}_Cover");
                     //Debug.Log($"[Debug@Monstor]TextureLoad:{covertex != null}");
 
                     if (covertex == null)
@@ -63,8 +77,8 @@
                         material = new Material(Shader.Find("Unlit/Transparent"));
                         material.mainTexture = covertex;
 
-                        Debug.Log($"[Debug@Monstor]Material:{material.shader.name}");
-                        Debug.Log($"[Debug@Monstor]Texture:{material.mainTexture.name}");
+                        //Debug.Log($"[Debug@Monstor]Material:{material.shader.name}");
+                        //Debug.Log($"[Debug@Monstor]Texture:{material.mainTexture.name}");
                     }
                     front.GetComponent<Renderer>().material = material;
                     front.GetComponent<Renderer>().material.mainTextureScale = new Vector2(-1, -1);
@@ -136,27 +150,8 @@
             MonstorModel.transform.rotation = this.transform.rotation * Quaternion.Euler(90f, 0f, 0f) * Quaternion.Euler(0f, 180f, 0f);
 
 
-            Debug.Log($"[Debug@Monstor]MonstoeModel.Position:{MonstorModel.transform.position}");
-            Debug.Log($"[Debug@Monstor]MonstoeModel.Rotation:{MonstorModel.transform.rotation}");
-
-            //switch((int)(Random.value/0.2))
-            //{
-            //    case 1:
-            //        Attack();
-            //        break;
-            //    case 2:
-            //        Heal();
-            //        break;
-            //    case 3:
-            //        Charge();
-            //        break;
-            //    case 4:
-            //        Damage();
-            //        break;
-            //    case 5:
-            //        Destruct();
-            //        break;
-            //}
+            //Debug.Log($"[Debug@Monstor]MonstoeModel.Position:{MonstorModel.transform.position}");
+            //Debug.Log($"[Debug@Monstor]MonstoeModel.Rotation:{MonstorModel.transform.rotation}");
 
             return;
         }
@@ -167,17 +162,16 @@
             switch (other.name)
             {
                 case "TOKYOCITY":
-                    IsTokyo = true;
-                    break;
-
                 case "TOKYOBAY":
                     IsTokyo = true;
+                    MonstorAnimation.SetBool("IsTokyo", IsTokyo);
                     break;
 
                 default:
                     break;
             }
         }
+        
 
         private void OnTriggerExit(Collider other)
         {
@@ -185,11 +179,9 @@
             switch (other.name)
             {
                 case "TOKYOCITY":
-                    IsTokyo = false;
-                    break;
-
                 case "TOKYOBAY":
                     IsTokyo = false;
+                    MonstorAnimation.SetBool("IsTokyo", IsTokyo);
                     break;
 
                 default:
@@ -197,36 +189,37 @@
             }
         }
 
-        public void Attack()
+        public void Attack(int count)
         {
-            if (IsTokyo)
+            Debug.Log($"[Debug@Monstor]Attack{count}");
+            MonstorAnimation.SetInteger("Attack", count);
+        }
+
+        public void Heal(int count)
+        {
+            if(!IsTokyo)
             {
-                MonstorAnimation.SetTrigger("AttackAll");
-            }
-            else
-            {
-                MonstorAnimation.SetTrigger("Attack");
+                Debug.Log($"[Debug@Monstor]Heal{count}");
+                MonstorAnimation.SetInteger("Heal", count);
             }
         }
 
-        public void Heal()
+        public void Charge(int count)
         {
-            MonstorAnimation.SetTrigger("Heal");
+            Debug.Log($"[Debug@Monstor]Charge{count}");
+            MonstorAnimation.SetInteger("Charge", count);
         }
 
-        public void Charge()
+        public void Damage(int count)
         {
-            MonstorAnimation.SetTrigger("Charge");
-        }
-
-        public void Damage()
-        {
+            Debug.Log($"[Debug@Monstor]Damage{count}");
             MonstorAnimation.SetTrigger("Damage");
         }
 
-        public void Destruct()
+        public void Destruct(int count)
         {
-            MonstorAnimation.SetTrigger("Destruct");
+            Debug.Log($"[Debug@Monstor]Destruct{count}");
+            MonstorAnimation.SetInteger("Destruct", count);
         }
 
         private AugmentedImage getFullTrackingImage()
