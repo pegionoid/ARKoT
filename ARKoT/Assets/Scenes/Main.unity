@@ -763,7 +763,7 @@ PrefabInstance:
         type: 3}
       propertyPath: SessionConfig
       value: 
-      objectReference: {fileID: 11400000, guid: 2f46d73df21c9b44ab1e59ea908c1032,
+      objectReference: {fileID: 11400000, guid: a3950cf6959268543888eb0b972924bc,
         type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c10877f7cd5764de18d46d7b777d1faa, type: 3}

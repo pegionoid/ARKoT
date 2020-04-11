@@ -189,6 +189,14 @@
             }
         }
 
+        //public IEnumerator Attack(int count)
+        //{
+        //    Debug.Log($"[Debug@Monstor]Attack{count}");
+        //    MonstorAnimation.SetInteger("Attack", count);
+        //    yield return null;
+        //    yield return new WaitForAction(MonstorAnimation, "Attack");
+        //}
+
         public void Attack(int count)
         {
             Debug.Log($"[Debug@Monstor]Attack{count}");
@@ -229,7 +237,27 @@
 
             return res;
         }
-        
+    }
+
+    public class WaitForAction : CustomYieldInstruction
+    {
+        Animator m_animator;
+        string m_property;
+
+        public WaitForAction(Animator animator, string property)
+        {
+            m_animator = animator;
+            m_property = property;
+        }
+
+        public override bool keepWaiting
+        {
+            get
+            {
+                int currentPropertyValue = m_animator.GetInteger(m_property);
+                return currentPropertyValue > 0;
+            }
+        }
     }
 }
 
